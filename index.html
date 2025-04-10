@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Quiz From CSV – Step by Step</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f4f4f4;
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      max-width: 600px;
+      margin: auto;
+      background: white;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    #question-box {
+      border: 1px solid #ccc;
+      padding: 15px;
+      border-radius: 10px;
+      margin-top: 20px;
+    }
+    .option {
+      margin: 5px 0;
+    }
+    .answer {
+      background: #d1ffd6;
+      padding: 8px;
+      border-radius: 6px;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+    #nextBtn {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    #nextBtn:hover {
+      background: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>📄 Step-by-Step Quiz from CSV</h2>
+    <input type="file" id="csvFile" accept=".csv" />
+    <div id="question-box" style="display: none;"></div>
+    <button id="nextBtn" style="display: none;">Next</button>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+  <script>
+    const fileInput = document.getElementById('csvFile');
+    const questionBox = document.getElementById('question-box');
+    const nextBtn = document.getElementById('nextBtn');
+
+    let questions = [];
+    let currentIndex = 0;
+
+    function showQuestion(index) {
+      const q = questions[index];
+      if (!q) return;
+
+      questionBox.innerHTML = `
+        <div><strong>Q${index + 1}:</strong> ${q["Question"]}</div>
+        <div class="option">a) ${q["Option A"]}</div>
+        <div class="option">b) ${q["Option B"]}</div>
+        <div class="option">c) ${q["Option C"]}</div>
+        <div class="option">d) ${q["Option D"]}</div>
+        <div class="answer">✅ Correct Answer: ${q["Correct Answer"]}</div>
+      `;
+
+      questionBox.style.display = 'block';
+      nextBtn.style.display = 'inline-block';
+    }
+
+    nextBtn.addEventListener('click', () => {
+      currentIndex++;
+      if (currentIndex < questions.length) {
+        showQuestion(currentIndex);
+      } else {
+        questionBox.innerHTML = "<strong>🎉 Quiz Completed!</strong>";
+        nextBtn.style.display = "none";
+      }
+    });
+
+    fileInput.addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      Papa.parse(file, {
+        header: true,
+        skipEmptyLines: true,
+        complete: function(results) {
+          questions = results.data;
+          currentIndex = 0;
+          showQuestion(currentIndex);
+        }
+      });
+    });
+  </script>
+</body>
+</html>
